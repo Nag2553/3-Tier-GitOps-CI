@@ -54,13 +54,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Trivy Vulnerability scanner (FS)
-        uses: aquasecurity/trivy-action@v0.27.0
+        uses: aquasecurity/trivy-action@v0.36.0  # Use the latest confirmed safe version
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'table'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
   build_backend_docker_image_and_push:
