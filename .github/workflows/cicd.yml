@@ -89,3 +89,83 @@ jobs:
           tags: |
             nag2553/frontend:latest
             nag2553/frontend:${{ env.IMAGE_TAG }}
+      build_frontend_imageand_push:
+        runs-on: ubuntu-latest
+        needs: trivy_fs_scan
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v4
+          - name: Login to Docker Hub
+            uses: docker/login-action@v3
+            with:
+              usernmae: $ {{ secrets.DOCKERHUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_TOKEN }}
+           - name: Set up QEMU
+             uses: docker/setup-qemu-action@v3
+           - name: Set up Docker Buildx
+             uses: docker/setup-buildx-action@v3
+           - name: Build andPush Docker image (frontend)
+             uses: docker/build-push-action@v6
+             with: 
+               context: ./client
+               file: ./client/Dockerfile
+               push: true
+               tags: |
+                 nag2553/frontend:latest
+                 nag2553/frontend:${{ env.IMAGE_TAG }}
+              trivy_image_scan:
+                runs-on: ubuntu-latest
+                needs:
+                  - buld_backend_docker_image_and_push
+                  - build_frontend_docker_image_and_push
+                steps:
+                  - nmae: checkout (noop, keeps workspace consistent)
+                    uses: actions/checkout@v4
+                  - name: Run Trivy image scan for backend
+                    uses: aquasecurity/trivy-action@v0.36.0
+                    with: 
+                    scan-type: image
+                    image-ref: nag2553/backend:$ {{ env.IMAGE_TAG }}
+                    format: table
+                    exit-code: '0'
+                    ignore-unfixed: true
+                    culn-type: os, library
+                    severity: CRITICAL,HIGH
+                  - nmae: Run Trivy image scan for frontend
+                    uses: aquasecurity/trivy-action@v0.36.0
+                    with: 
+                    scan-type: image
+                    image-ref: nag2553/frontend:$ {{ env.IMAGE_TAG }}
+                    format: table
+                    exit-code: '0'
+                    ignore-unfixed: true
+                    culn-type: os, library
+                    severity: CRITICAL,HIGH
+                 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                 
+                 
+                 
